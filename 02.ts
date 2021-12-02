@@ -8,17 +8,23 @@ const commands = (await Deno.readTextFile("./2-input.txt")).split("\n")
 
 let forwardPosition = 0;
 let depth = 0;
+let aim = 0;
 
 commands.forEach(({ command, amount }) => {
+  console.log(command, "before", { forwardPosition, depth, aim, amount });
+
   if (command === "forward") {
     forwardPosition += amount;
+    depth += amount * aim;
   }
   if (command === "down") {
-    depth += amount;
+    aim += amount;
   }
   if (command === "up") {
-    depth -= amount;
+    aim -= amount;
   }
+
+  console.log(command, "after", { forwardPosition, depth, aim, amount });
 });
 
 const multiplied = forwardPosition * depth;

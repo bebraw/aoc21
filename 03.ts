@@ -1,4 +1,4 @@
-const lines = (await Deno.readTextFile("./3-test-input.txt")).split("\n")
+const lines = (await Deno.readTextFile("./3-input.txt")).split("\n")
   .map((s) => s.split("").map((n) => parseInt(n, 10)));
 const mostCommonBits = getMostCommonBits(lines);
 const mostCommonValueInDecimal = parseInt(mostCommonBits.join(""), 2);
@@ -20,11 +20,7 @@ function getOxygenGeneratorRating(lines: number[][], i = 0): number[][] {
   const mostCommonBit = getMostCommonBit(lines, i);
   const filteredLines = lines.filter((line) => line[i] === mostCommonBit);
 
-  if (filteredLines.length === 0) {
-    return lines;
-  }
-
-  if (i > lines.length) {
+  if (filteredLines.length === 1) {
     return filteredLines;
   }
 
@@ -35,11 +31,7 @@ function getCO2Rating(lines: number[][], i = 0): number[][] {
   const leastCommonBit = getLeastCommonBit(lines, i);
   const filteredLines = lines.filter((line) => line[i] === leastCommonBit);
 
-  if (filteredLines.length === 0) {
-    return lines;
-  }
-
-  if (i > lines.length) {
+  if (filteredLines.length === 1) {
     return filteredLines;
   }
 

@@ -1,12 +1,14 @@
 type BingoSheet = number[][];
 
-const lines = (await Deno.readTextFile("./4-test-input.txt")).split("\n");
+const lines = (await Deno.readTextFile("./4-input.txt")).split("\n");
 const numbers = lines[0].split(",").map((n) => parseInt(n, 10));
 const bingoSheets = getBingoSheets(lines);
 const firstBingoMatch = findFirstBingoMatch(bingoSheets, numbers);
-const score = firstBingoMatch && calculateScore(firstBingoMatch);
+const firstScore = firstBingoMatch && calculateScore(firstBingoMatch);
+const lastBingoMatch = findLastBingoMatch(bingoSheets, numbers);
+const lastScore = lastBingoMatch && calculateScore(lastBingoMatch);
 
-console.log(score);
+console.log(firstScore, lastScore);
 
 function getBingoSheets(lines: string[]) {
   const ret: BingoSheet[] = [];
@@ -37,6 +39,31 @@ function findFirstBingoMatch(sheets: BingoSheet[], numbers: number[]) {
       }
     }
   }
+}
+
+function findLastBingoMatch(
+  sheets: BingoSheet[],
+  numbers: number[],
+): { sheet: BingoSheet; winningNumbers: number[] } | undefined {
+  let ret;
+  const winningBoards = new Set();
+
+  for (let i = 0; i < numbers.length; i++) {
+    for (let j = 0; j < sheets.length; j++) {
+      if (
+        !winningBoards.has(j) && checkBingoMatch(sheets[j], numbers.slice(0, i))
+      ) {
+        ret = {
+          sheet: sheets[j],
+          winningNumbers: numbers.slice(0, i),
+        };
+
+        winningBoards.add(j);
+      }
+    }
+  }
+
+  return ret;
 }
 
 function checkBingoMatch(sheet: BingoSheet, numbers: number[]) {
@@ -86,7 +113,7 @@ function calculateScore(
     row.filter((n) => {
       return !winningNumbers.includes(n);
     })
-  ).reduce((a, b) => a + b);
+  ).reduce((a, b) => a + b, 0);
 
   return lastWinningNumber * unmatchedSum;
 }

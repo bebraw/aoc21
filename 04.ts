@@ -6,7 +6,7 @@ const bingoSheets = getBingoSheets(lines);
 const firstBingoMatch = findFirstBingoMatch(bingoSheets, numbers);
 const score = firstBingoMatch && calculateScore(firstBingoMatch);
 
-console.log(numbers, bingoSheets, firstBingoMatch, score);
+console.log(score);
 
 function getBingoSheets(lines: string[]) {
   const ret: BingoSheet[] = [];

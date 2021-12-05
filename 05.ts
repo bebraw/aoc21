@@ -8,7 +8,7 @@ type Line = {
   to: Coordinate;
 };
 
-const lines: Line[] = (await Deno.readTextFile("./5-test-input.txt")).split(
+const lines: Line[] = (await Deno.readTextFile("./5-input.txt")).split(
   "\n",
 ).map(
   (s) => ({
@@ -25,7 +25,7 @@ const lines: Line[] = (await Deno.readTextFile("./5-test-input.txt")).split(
 const hits = calculateHits(lines);
 const points = calculatePoints(hits);
 
-console.log(lines, hits, points);
+console.log(points);
 
 function calculateHits(lines: Line[]): Record<string, number> {
   const hits: Record<string, number> = {};

@@ -60,42 +60,35 @@ function calculateHits(lines: Line[]): Record<string, number> {
             }
           },
         );
-    } else if (from.x === from.y && to.x === to.y) {
-      // TODO
-      console.log("diagonal match 1", from, to);
-
-      // TODO: Adjust this
+    } else if (from.x - to.x === from.y - to.y) {
       Array.from(
         new Array(Math.abs(to.x - from.x) + 1).keys(),
         (v) => v + Math.min(to.x, from.x),
       )
         .forEach(
           (x, i) => {
-            console.log(x, from.y + i);
+            const y = Math.min(from.y, to.y) + i;
 
-            if (hits[`${x}-${from.y + i}`]) {
-              hits[`${x}-${from.y + i}`]++;
+            if (hits[`${x}-${y}`]) {
+              hits[`${x}-${y}`]++;
             } else {
-              hits[`${x}-${from.y + i}`] = 1;
+              hits[`${x}-${y}`] = 1;
             }
           },
         );
-    } else if (from.x === to.y && from.y === to.x) {
-      // TODO
-      console.log("diagonal match 2", from, to);
-
+    } else if (from.x - to.x === -(from.y - to.y)) {
       Array.from(
         new Array(Math.abs(to.x - from.x) + 1).keys(),
         (v) => Math.max(to.x, from.x) - v,
       )
         .forEach(
           (x, i) => {
-            console.log(x, from.y + i);
+            const y = Math.min(from.y, to.y) + i;
 
-            if (hits[`${x}-${from.y + i}`]) {
-              hits[`${x}-${from.y + i}`]++;
+            if (hits[`${x}-${y}`]) {
+              hits[`${x}-${y}`]++;
             } else {
-              hits[`${x}-${from.y + i}`] = 1;
+              hits[`${x}-${y}`] = 1;
             }
           },
         );

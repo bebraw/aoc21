@@ -119,7 +119,7 @@ function printDiagram(hits: Record<string, number>) {
   Object.entries(hits).forEach(([k, v]) => {
     const [x, y] = k.split("-");
 
-    coordinates[parseInt(x, 10)][parseInt(y, 10)] = v;
+    coordinates[parseInt(y, 10)][parseInt(x, 10)] = v;
   });
 
   return coordinates.map((row) => row.map((v) => v || ".").join("")).join(

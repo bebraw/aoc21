@@ -23,8 +23,9 @@ const lines: Line[] = (await Deno.readTextFile("./5-test-input.txt")).split(
   }),
 );
 const hits = calculateHits(lines);
+const points = calculatePoints(hits);
 
-console.log(lines, hits);
+console.log(lines, hits, points);
 
 function calculateHits(lines: Line[]): Record<string, number> {
   const hits: Record<string, number> = {};
@@ -62,4 +63,8 @@ function calculateHits(lines: Line[]): Record<string, number> {
   });
 
   return hits;
+}
+
+function calculatePoints(hits: Record<string, number>) {
+  return Object.values(hits).filter((v) => v > 1).length;
 }

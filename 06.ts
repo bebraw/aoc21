@@ -14,22 +14,11 @@ const fishes: CondensedFishes = condenseFishes(
 console.log("Amount of fishes:", calculateFishes(fishes, 256));
 
 function condenseFishes(fishes: Fish[]): CondensedFishes {
-  // TODO: Clean up init
-  const ret: CondensedFishes = {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "5": 0,
-    "6": 0,
-    "7": 0,
-    "8": 0,
-  };
+  const ret: CondensedFishes = Object.fromEntries(
+    Array.from(new Array(9).keys(), (i) => [i, 0]),
+  );
 
-  fishes.forEach((fish) => {
-    ret[fish]++;
-  });
+  fishes.forEach((fish) => ret[fish]++);
 
   return ret;
 }
@@ -40,18 +29,6 @@ function calculateFishes(fishes: CondensedFishes, amount: number) {
   });
 
   return Object.values(fishes).reduce((a, b) => a + b);
-}
-
-function generateSteps(fishes: Fish[], amount: number) {
-  let previousResult = fishes;
-
-  return [fishes].concat(
-    Array.from(new Array(amount).keys()).map((_i) => {
-      previousResult = step(previousResult);
-
-      return previousResult;
-    }),
-  );
 }
 
 function condensedStep(fishes: CondensedFishes) {
@@ -67,6 +44,18 @@ function condensedStep(fishes: CondensedFishes) {
       fishes[parsedNumber - 1] += count;
     }
   });
+}
+
+function generateSteps(fishes: Fish[], amount: number) {
+  let previousResult = fishes;
+
+  return [fishes].concat(
+    Array.from(new Array(amount).keys()).map((_i) => {
+      previousResult = step(previousResult);
+
+      return previousResult;
+    }),
+  );
 }
 
 function step(fishes: Fish[]) {

@@ -10,11 +10,11 @@ function findTheCheapestMove(locations: number[]) {
 
   return Math.min.apply(
     null,
-    options.map((o) => getFuelSpentWhileMoving(locations, o)),
+    options.map((o) => getFuelSpentWhileMovingPart2(locations, o)),
   );
 }
 
-function getFuelSpentWhileMoving(locations: number[], position: number) {
+function getFuelSpentWhileMovingPart1(locations: number[], position: number) {
   let fuelSpent = 0;
 
   locations.forEach((l) => {
@@ -22,4 +22,25 @@ function getFuelSpentWhileMoving(locations: number[], position: number) {
   });
 
   return fuelSpent;
+}
+
+function getFuelSpentWhileMovingPart2(locations: number[], position: number) {
+  let fuelSpent = 0;
+
+  locations.forEach((l) => {
+    fuelSpent += getWeight(Math.abs(l - position));
+  });
+
+  return fuelSpent;
+}
+
+// Most likely there's a better way to calculate this
+function getWeight(n: number) {
+  // Odds
+  if (n % 2) {
+    return (n + 1) * Math.floor(n / 2) + ((n + 1) / 2);
+  }
+
+  // Evens
+  return (n + 1) * (n / 2);
 }

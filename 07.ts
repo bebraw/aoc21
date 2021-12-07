@@ -34,13 +34,6 @@ function getFuelSpentWhileMovingPart2(locations: number[], position: number) {
   return fuelSpent;
 }
 
-// Most likely there's a better way to calculate this
 function getWeight(n: number) {
-  // Odds
-  if (n % 2) {
-    return (n + 1) * Math.floor(n / 2) + ((n + 1) / 2);
-  }
-
-  // Evens
   return (n + 1) * (n / 2);
 }

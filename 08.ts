@@ -3,12 +3,12 @@ import { permutations } from "https://deno.land/std@0.103.0/collections/permutat
 type Character = Set<string>;
 type Segments = { begin: Character[]; end: Character[] };
 
-const segments: Segments[] = (await Deno.readTextFile("./8-test-input-2.txt"))
+const segments: Segments[] = (await Deno.readTextFile("./8-input.txt"))
   .split(
     "\n",
   ).map(parseSegment);
 
-evaluateAllSegments(segments);
+console.log(evaluateAllSegments(segments));
 
 function parseSegment(s: string) {
   const [begin, end] = s.split("|");
@@ -20,7 +20,7 @@ function parseSegment(s: string) {
 }
 
 function evaluateAllSegments(segments: Segments[]) {
-  return segments.forEach(evaluateSegments);
+  return segments.map(evaluateSegments).reduce((a, b) => a + b, 0);
 }
 
 function evaluateSegments(words: Segments) {
@@ -61,7 +61,7 @@ function evaluateSegments(words: Segments) {
   const match = matches.length > 0 ? matches[0] : [];
 
   if (match) {
-    const m = parseInt(
+    return parseInt(
       words.end.map((word) => {
         const wordMapping = Object.fromEntries(
           characters.map((c, i) => [c, match[i]]),
@@ -76,21 +76,9 @@ function evaluateSegments(words: Segments) {
       }).join(""),
       10,
     );
-
-    console.log(m);
   } else {
     throw new Error("No match");
   }
-}
-
-function difference<T>(a: Set<T>, b: Set<T>) {
-  return [...a].filter((x) => !b.has(x)).concat(
-    [...b].filter((x) => !a.has(x)),
-  );
-}
-
-function subtract<T>(a: Set<T>, b: Set<T>) {
-  return [...a].filter((x) => !b.has(x));
 }
 
 function intersection<T>(setA: Set<T>, setB: Set<T>) {

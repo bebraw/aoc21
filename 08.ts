@@ -61,20 +61,21 @@ function evaluateSegments(words: Segments) {
   const match = matches.length > 0 ? matches[0] : [];
 
   if (match) {
-    const m = words.end.map((word) => {
-      const wordMapping = Object.fromEntries(
-        characters.map((c, i) => [c, match[i]]),
-      );
-      const mappedWord = Array.from(word).map((w) => wordMapping[w]);
+    const m = parseInt(
+      words.end.map((word) => {
+        const wordMapping = Object.fromEntries(
+          characters.map((c, i) => [c, match[i]]),
+        );
+        const mappedWord = Array.from(word).map((w) => wordMapping[w]);
 
-      return {
-        word,
-        number: shapes.find(({ shape }) =>
+        return shapes.find(({ shape }) =>
+          shape.size === mappedWord.length &&
           intersection(shape, new Set(mappedWord)).size === mappedWord.length
         )
-          ?.char,
-      };
-    });
+          ?.char;
+      }).join(""),
+      10,
+    );
 
     console.log(m);
   } else {

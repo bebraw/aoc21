@@ -70,6 +70,10 @@ function evaluateSegments(segments: Segments) {
       foundNumbers[4],
       subtract(foundNumbers[7], foundNumbers[4]),
     );
+
+    if (foundNumbers[1]) {
+      console.log("found one too", foundNumbers[1]);
+    }
   }
 
   console.log(
@@ -106,6 +110,46 @@ function hasSeven(c: Character) {
 
 function hasEight(c: Character) {
   return c.size === 7;
+}
+
+function zeroShape() {
+  return { a: true, b: true, c: true, d: false, e: true, f: true, g: true };
+}
+
+function oneShape() {
+  return { a: false, b: false, c: true, d: false, e: false, f: true, g: false };
+}
+
+function twoShape() {
+  return { a: true, b: false, c: true, d: true, e: true, f: false, g: true };
+}
+
+function threeShape() {
+  return { a: true, b: false, c: true, d: true, e: false, f: true, g: true };
+}
+
+function fourShape() {
+  return { a: false, b: true, c: true, d: true, e: false, f: true, g: false };
+}
+
+function fiveShape() {
+  return { a: true, b: true, c: false, d: true, e: false, f: true, g: true };
+}
+
+function sixShape() {
+  return { a: true, b: true, c: false, d: true, e: true, f: true, g: true };
+}
+
+function sevenShape() {
+  return { a: true, b: false, c: true, d: false, e: false, f: true, g: false };
+}
+
+function eightShape() {
+  return { a: true, b: true, c: true, d: true, e: true, f: true, g: true };
+}
+
+function nineShape() {
+  return { a: true, b: true, c: true, d: true, e: false, f: true, g: true };
 }
 
 function difference<T>(a: Set<T>, b: Set<T>) {

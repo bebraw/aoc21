@@ -1,12 +1,14 @@
+import { permutations } from "https://deno.land/std@0.103.0/collections/permutations.ts";
+
 type Character = Set<string>;
 type Segments = { begin: Character[]; end: Character[] };
 
-const segments: Segments[] = (await Deno.readTextFile("./8-test-input-2.txt"))
+const segments: Segments[] = (await Deno.readTextFile("./8-test-input.txt"))
   .split(
     "\n",
   ).map(parseSegment);
 
-console.log(evaluateAllSegments(segments));
+evaluateAllSegments(segments);
 
 function parseSegment(s: string) {
   const [begin, end] = s.split("|");
@@ -18,138 +20,123 @@ function parseSegment(s: string) {
 }
 
 function evaluateAllSegments(segments: Segments[]) {
-  return segments.map(evaluateSegments).reduce((a, b) => a + b, 0);
+  return segments.forEach(evaluateSegments);
 }
 
-function evaluateSegments(segments: Segments) {
-  const finalSegments: Record<string, string> = {};
-  const foundNumbers: Record<string, Character> = {};
-  const zeroSixOrNine: Character[] = [];
-  const twoThreeOrFive: Character[] = [];
-  let foundNumberAmount = 0;
+function evaluateSegments(words: Segments) {
+  // Possible mappings from a character to another based on index
+  const characters = ["a", "b", "c", "d", "e", "f", "g"];
+  const alternatives = permutations(characters);
+  // TODO: Encode shapes directly here
+  const shapes = [
+    zeroShape,
+    oneShape,
+    twoShape,
+    threeShape,
+    fourShape,
+    fiveShape,
+    sixShape,
+    sevenShape,
+    eightShape,
+    nineShape,
+  ].map((s) => s());
 
-  segments.begin.forEach((segment) => {
-    if (hasOne(segment)) {
-      foundNumbers[1] = segment;
+  const matches = alternatives.map((alternative) => {
+    const matched = words.begin.concat(words.end).every((word) => {
+      const mapping = Object.fromEntries(
+        characters.map((c, i) => [c, alternative[i]]),
+      );
+      const mappedWord = Array.from(word).map((w) => mapping[w]);
 
-      foundNumberAmount++;
+      // TODO: Pick already chosen shapes and avoid using them again
+      return shapes.some(({ shape }) =>
+        intersection(shape, new Set(mappedWord)).size ===
+          mappedWord.length
+      );
+    });
+
+    if (matched) {
+      return alternative;
     }
-    if (hasFour(segment)) {
-      foundNumbers[4] = segment;
+  }).filter(Boolean);
+  const match = matches.length > 0 ? matches[0] : [];
 
-      foundNumberAmount++;
-    }
-    if (hasSeven(segment)) {
-      foundNumbers[7] = segment;
+  if (match) {
+    const m = words.end.map((word) => {
+      const wordMapping = Object.fromEntries(
+        characters.map((c, i) => [c, match[i]]),
+      );
+      const mappedWord = Array.from(word).map((w) => wordMapping[w]);
 
-      foundNumberAmount++;
-    }
-    if (hasEight(segment)) {
-      foundNumbers[8] = segment;
+      return shapes.find(({ shape }) =>
+        intersection(shape, new Set(mappedWord)).size === mappedWord.length
+      )
+        ?.char;
+    });
 
-      foundNumberAmount++;
-    }
-    if (hasTwoThreeOrFive(segment)) {
-      twoThreeOrFive.push(segment);
-    }
-    if (hasZeroSixOrNine(segment)) {
-      zeroSixOrNine.push(segment);
-    }
-  });
-
-  if (foundNumbers[1] && foundNumbers[7]) {
-    const top = difference(foundNumbers[1], foundNumbers[7])[0];
-
-    finalSegments[top] = "a";
-  }
-
-  if (foundNumbers[4] && foundNumbers[7]) {
-    console.log(
-      "got both 4 and 7",
-      foundNumbers[7],
-      foundNumbers[4],
-      subtract(foundNumbers[7], foundNumbers[4]),
+    console.log(m);
+    /*
+    const word = words[0];
+    const wordMapping = Object.fromEntries(
+      characters.map((c, i) => [c, match[i]]),
+    );
+    const mappedWord = Array.from(word).map((w) => wordMapping[w]);
+    const matchingShape = shapes.find(({ shape }) =>
+      difference(shape, new Set(mappedWord))
     );
 
-    if (foundNumbers[1]) {
-      console.log("found one too", foundNumbers[1]);
-    }
+    console.log("got match", match);
+    */
+
+    // console.log(match, word, mappedWord, matchingShape);
+  } else {
+    throw new Error("No match");
   }
 
-  console.log(
-    "final segments",
-    finalSegments,
-    "zero, six or nine",
-    zeroSixOrNine,
-    "two, three or five",
-    twoThreeOrFive,
-  );
+  // const alternative = new Set(alternatives[0]);
+  // console.log(shapes.some((shape) => difference(shape, alternative)));
 
-  return foundNumberAmount;
-}
-
-function hasOne(c: Character) {
-  return c.size === 2;
-}
-
-function hasFour(c: Character) {
-  return c.size === 4;
-}
-
-function hasTwoThreeOrFive(c: Character) {
-  return c.size === 5;
-}
-
-function hasZeroSixOrNine(c: Character) {
-  return c.size === 6;
-}
-
-function hasSeven(c: Character) {
-  return c.size === 3;
-}
-
-function hasEight(c: Character) {
-  return c.size === 7;
+  // See if an alternative satisfies a segment
 }
 
 function zeroShape() {
-  return { a: true, b: true, c: true, d: false, e: true, f: true, g: true };
+  return { char: 0, shape: new Set(["a", "b", "c", "e", "f", "g"]) };
 }
 
 function oneShape() {
-  return { a: false, b: false, c: true, d: false, e: false, f: true, g: false };
+  return { char: 1, shape: new Set(["c", "f"]) };
 }
 
 function twoShape() {
-  return { a: true, b: false, c: true, d: true, e: true, f: false, g: true };
+  return { char: 2, shape: new Set(["a", "c", "d", "e", "g"]) };
 }
 
 function threeShape() {
-  return { a: true, b: false, c: true, d: true, e: false, f: true, g: true };
+  return { char: 3, shape: new Set(["a", "c", "d", "f", "g"]) };
 }
 
 function fourShape() {
-  return { a: false, b: true, c: true, d: true, e: false, f: true, g: false };
+  return { char: 4, shape: new Set(["b", "c", "d", "f"]) };
 }
 
 function fiveShape() {
-  return { a: true, b: true, c: false, d: true, e: false, f: true, g: true };
+  return { char: 5, shape: new Set(["a", "b", "d", "f", "g"]) };
 }
 
 function sixShape() {
-  return { a: true, b: true, c: false, d: true, e: true, f: true, g: true };
+  return { char: 6, shape: new Set(["a", "b", "d", "e", "f", "g"]) };
 }
 
 function sevenShape() {
-  return { a: true, b: false, c: true, d: false, e: false, f: true, g: false };
+  return { char: 7, shape: new Set(["a", "c", "f"]) };
 }
 
 function eightShape() {
-  return { a: true, b: true, c: true, d: true, e: true, f: true, g: true };
+  return { char: 8, shape: new Set(["a", "b", "c", "d", "e", "f", "g"]) };
 }
 
 function nineShape() {
-  return { a: true, b: true, c: true, d: true, e: false, f: true, g: true };
+  return { char: 9, shape: new Set(["a", "b", "c", "d", "f", "g"]) };
 }
 
 function difference<T>(a: Set<T>, b: Set<T>) {
@@ -160,4 +147,15 @@ function difference<T>(a: Set<T>, b: Set<T>) {
 
 function subtract<T>(a: Set<T>, b: Set<T>) {
   return [...a].filter((x) => !b.has(x));
+}
+
+function intersection<T>(setA: Set<T>, setB: Set<T>) {
+  const _intersection = new Set();
+
+  for (const elem of setB) {
+    if (setA.has(elem)) {
+      _intersection.add(elem);
+    }
+  }
+  return _intersection;
 }

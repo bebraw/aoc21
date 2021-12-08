@@ -1,14 +1,11 @@
 type Character = Set<string>;
 type Segments = { begin: Character[]; end: Character[] };
 
-// TODO: Change alignment per column as that's where comparison can be done properly
-const segments: Segments[] = (await Deno.readTextFile("./8-input.txt"))
+const segments: Segments[] = (await Deno.readTextFile("./8-test-input-2.txt"))
   .split(
     "\n",
   ).map(parseSegment);
-// const segmentsPerColumn = columnize(segments);
 
-// console.log(segments);
 console.log(evaluateAllSegments(segments));
 
 function parseSegment(s: string) {
@@ -20,33 +17,18 @@ function parseSegment(s: string) {
   };
 }
 
-function columnize(segments: Segments[]) {
-  const ret: Character[][] = Array.from(new Array(10).keys(), () => []);
-
-  segments.forEach(({ begin }) => {
-    begin.forEach((s, i) => {
-      ret[i].push(s);
-    });
-    /*end.forEach((s, i) => {
-      ret[10 + i].push(s);
-    });*/
-  });
-
-  return ret;
-}
-
 function evaluateAllSegments(segments: Segments[]) {
   return segments.map(evaluateSegments).reduce((a, b) => a + b, 0);
 }
 
 function evaluateSegments(segments: Segments) {
-  // TODO: Generalize this per display
   const finalSegments: Record<string, string> = {};
   const foundNumbers: Record<string, Character> = {};
-  const sixOrNine: Character[] = [];
+  const zeroSixOrNine: Character[] = [];
+  const twoThreeOrFive: Character[] = [];
   let foundNumberAmount = 0;
 
-  segments.end.forEach((segment) => {
+  segments.begin.forEach((segment) => {
     if (hasOne(segment)) {
       foundNumbers[1] = segment;
 
@@ -67,8 +49,11 @@ function evaluateSegments(segments: Segments) {
 
       foundNumberAmount++;
     }
-    if (hasSixOrNine(segment)) {
-      sixOrNine.push(segment);
+    if (hasTwoThreeOrFive(segment)) {
+      twoThreeOrFive.push(segment);
+    }
+    if (hasZeroSixOrNine(segment)) {
+      zeroSixOrNine.push(segment);
     }
   });
 
@@ -87,14 +72,13 @@ function evaluateSegments(segments: Segments) {
     );
   }
 
-  // TODO: If 5 and 6 are found, then e can be figured out
-  // TODO: If 8 and 9 are found, then e can be figured out
-  // TODO: Check six and nine
   console.log(
     "final segments",
     finalSegments,
-    "six or nine",
-    sixOrNine,
+    "zero, six or nine",
+    zeroSixOrNine,
+    "two, three or five",
+    twoThreeOrFive,
   );
 
   return foundNumberAmount;
@@ -108,7 +92,11 @@ function hasFour(c: Character) {
   return c.size === 4;
 }
 
-function hasSixOrNine(c: Character) {
+function hasTwoThreeOrFive(c: Character) {
+  return c.size === 5;
+}
+
+function hasZeroSixOrNine(c: Character) {
   return c.size === 6;
 }
 

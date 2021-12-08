@@ -2,14 +2,14 @@ type Character = Set<string>;
 type Segments = { begin: Character[]; end: Character[] };
 
 // TODO: Change alignment per column as that's where comparison can be done properly
-const segments: Segments[] = (await Deno.readTextFile("./8-test-input-2.txt"))
+const segments: Segments[] = (await Deno.readTextFile("./8-input.txt"))
   .split(
     "\n",
   ).map(parseSegment);
-const segmentsPerColumn = columnize(segments);
+// const segmentsPerColumn = columnize(segments);
 
 // console.log(segments);
-console.log(evaluateAllSegments(segmentsPerColumn));
+console.log(evaluateAllSegments(segments));
 
 function parseSegment(s: string) {
   const [begin, end] = s.split("|");
@@ -21,42 +21,51 @@ function parseSegment(s: string) {
 }
 
 function columnize(segments: Segments[]) {
-  const ret: Character[][] = Array.from(new Array(14).keys(), () => []);
+  const ret: Character[][] = Array.from(new Array(10).keys(), () => []);
 
-  segments.forEach(({ begin, end }) => {
+  segments.forEach(({ begin }) => {
     begin.forEach((s, i) => {
       ret[i].push(s);
     });
-    end.forEach((s, i) => {
+    /*end.forEach((s, i) => {
       ret[10 + i].push(s);
-    });
+    });*/
   });
 
   return ret;
 }
 
-function evaluateAllSegments(segments: Character[][]) {
-  segments.forEach(evaluateSegments);
+function evaluateAllSegments(segments: Segments[]) {
+  return segments.map(evaluateSegments).reduce((a, b) => a + b, 0);
 }
 
-function evaluateSegments(segmentsPerColumn: Character[]) {
+function evaluateSegments(segments: Segments) {
   // TODO: Generalize this per display
   const finalSegments: Record<string, string> = {};
   const foundNumbers: Record<string, Character> = {};
   const sixOrNine: Character[] = [];
+  let foundNumberAmount = 0;
 
-  segmentsPerColumn.forEach((segment) => {
+  segments.end.forEach((segment) => {
     if (hasOne(segment)) {
       foundNumbers[1] = segment;
+
+      foundNumberAmount++;
     }
     if (hasFour(segment)) {
       foundNumbers[4] = segment;
+
+      foundNumberAmount++;
     }
     if (hasSeven(segment)) {
       foundNumbers[7] = segment;
+
+      foundNumberAmount++;
     }
     if (hasEight(segment)) {
       foundNumbers[8] = segment;
+
+      foundNumberAmount++;
     }
     if (hasSixOrNine(segment)) {
       sixOrNine.push(segment);
@@ -72,7 +81,6 @@ function evaluateSegments(segmentsPerColumn: Character[]) {
   if (foundNumbers[4] && foundNumbers[7]) {
     console.log(
       "got both 4 and 7",
-      segmentsPerColumn,
       foundNumbers[7],
       foundNumbers[4],
       subtract(foundNumbers[7], foundNumbers[4]),
@@ -89,7 +97,7 @@ function evaluateSegments(segmentsPerColumn: Character[]) {
     sixOrNine,
   );
 
-  return "foobar";
+  return foundNumberAmount;
 }
 
 function hasOne(c: Character) {

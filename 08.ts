@@ -1,6 +1,7 @@
 type Character = Set<string>;
 type Segments = { begin: Character[]; end: Character[] };
 
+// TODO: Change alignment per column as that's where comparison can be done properly
 const segments: Segments[] = (await Deno.readTextFile("./8-test-input.txt"))
   .split(
     "\n",

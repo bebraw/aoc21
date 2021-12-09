@@ -19,17 +19,17 @@ console.log(score, basins.slice(0, 10));
 
 function findBasins(lines: Weights) {
   const allBasin = {};
+  const lowestPoints = findLowestPoints(lines);
 
-  const ret = lines.flatMap((line, y) =>
-    line.map((_value, x) => {
-      const basin = {};
+  // @ts-ignore
+  const ret = lowestPoints.map(([x, y]) => {
+    const basin = {};
 
-      calculateBasin(allBasin, lines, x, y);
-      calculateBasin(basin, lines, x, y);
+    calculateBasin(allBasin, lines, x, y);
+    calculateBasin(basin, lines, x, y);
 
-      return Object.keys(basin).length;
-    })
-  );
+    return Object.keys(basin).length;
+  });
 
   printBasin(lines, allBasin);
 
@@ -96,7 +96,7 @@ function findLowestPoints(lines: Weights) {
       return (isDefined(prevX) ? prevX > value : true) &&
         (isDefined(nextX) ? nextX > value : true) &&
         (isDefined(prevY) ? prevY > value : true) &&
-        (isDefined(nextY) ? nextY > value : true) && value;
+        (isDefined(nextY) ? nextY > value : true) && [x, y];
     })
   ).filter((v) => v !== false);
 }

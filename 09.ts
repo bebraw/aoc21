@@ -1,3 +1,5 @@
+import { styles } from "https://deno.land/x/ansi_styles@1.0.0/mod.ts";
+
 type Weights = number[][];
 
 const weights: Weights = (await Deno.readTextFile("./9-input.txt"))
@@ -53,7 +55,11 @@ function findBasins(lines: Weights) {
 function printBasin(lines: Weights, basin: Record<string, boolean>) {
   console.log(
     lines.map((line, y) =>
-      line.map((value, x) => basin[`${x}-${y}`] ? value : ".")
+      line.map((value, x) =>
+        basin[`${x}-${y}`]
+          ? value
+          : `${styles.dim.open}${value}${styles.dim.close}`
+      )
     ).join("\n"),
   );
   console.log();

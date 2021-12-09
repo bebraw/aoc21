@@ -1,6 +1,6 @@
 type Weights = number[][];
 
-const weights: Weights = (await Deno.readTextFile("./9-test-input.txt"))
+const weights: Weights = (await Deno.readTextFile("./9-input.txt"))
   .split(
     "\n",
   ).map((s) => s.split("").map((s) => parseInt(s, 10)));
@@ -13,10 +13,12 @@ basins.sort((a, b) => b - a);
 // @ts-ignore findBasins return too broad type
 const score = basins.slice(0, 3).reduce((a, b) => a * b, 1);
 
-console.log(basins, score);
+console.log(score, basins.slice(0, 10));
 
 function findBasins(lines: Weights) {
-  return lines.flatMap((line, y) =>
+  const allBasin = {};
+
+  const ret = lines.flatMap((line, y) =>
     line.map((value, x) => {
       // TODO: Clean up undefined handling + repetition
       const prevX = line[x - 1];
@@ -33,9 +35,8 @@ function findBasins(lines: Weights) {
       if (isLowestPoint) {
         const basin = {};
 
+        calculateBasin(allBasin, lines, x, y);
         calculateBasin(basin, lines, x, y);
-
-        // printBasin(lines, basin);
 
         return Object.keys(basin).length;
       }
@@ -43,6 +44,10 @@ function findBasins(lines: Weights) {
       return false;
     })
   ).filter((v) => v !== false);
+
+  printBasin(lines, allBasin);
+
+  return ret;
 }
 
 function printBasin(lines: Weights, basin: Record<string, boolean>) {

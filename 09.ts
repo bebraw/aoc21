@@ -81,17 +81,13 @@ function calculateBasin(
   if (isDefined(prevX) && prevX - value === 1) {
     calculateBasin(basin, lines, x - 1, y);
   }
-  if (
-    isDefined(nextX) && x + 1 < line.length && nextX - value === 1
-  ) {
+  if (isDefined(nextX) && nextX - value === 1) {
     calculateBasin(basin, lines, x + 1, y);
   }
   if (isDefined(prevY) && prevY - value === 1) {
     calculateBasin(basin, lines, x, y - 1);
   }
-  if (
-    isDefined(nextY) && y + 1 < lines.length && nextY - value === 1
-  ) {
+  if (isDefined(nextY) && nextY - value === 1) {
     calculateBasin(basin, lines, x, y + 1);
   }
 }

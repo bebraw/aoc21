@@ -35,8 +35,7 @@ function findBasins(lines: Weights) {
 
         calculateBasin(basin, lines, x, y);
 
-        // TODO: Add a print helper
-        console.log("basin", basin);
+        // printBasin(lines, basin);
 
         return Object.keys(basin).length;
       }
@@ -46,7 +45,15 @@ function findBasins(lines: Weights) {
   ).filter((v) => v !== false);
 }
 
-// TODO: Debug with larger amount of data
+function printBasin(lines: Weights, basin: Record<string, boolean>) {
+  console.log(
+    lines.map((line, y) =>
+      line.map((value, x) => basin[`${x}-${y}`] ? value : ".")
+    ).join("\n"),
+  );
+  console.log();
+}
+
 function calculateBasin(
   basin: Record<string, boolean>,
   lines: Weights,

@@ -1,6 +1,6 @@
 type Weights = number[][];
 
-const weights: Weights = (await Deno.readTextFile("./9-test-input.txt"))
+const weights: Weights = (await Deno.readTextFile("./9-input.txt"))
   .split(
     "\n",
   ).map((s) => s.split("").map((s) => parseInt(s, 10)));
@@ -8,7 +8,7 @@ const lowestPoints = findLowestPoints(weights);
 // @ts-ignore: TODO: Above has wrong return type
 const riskLevel = calculateRiskLevel(lowestPoints);
 
-console.log(weights, lowestPoints, riskLevel);
+console.log(riskLevel);
 
 function findLowestPoints(lines: Weights) {
   return lines.flatMap((line, i) =>

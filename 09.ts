@@ -15,18 +15,17 @@ basins.sort((a, b) => b - a);
 // @ts-ignore findBasins return too broad type
 const score = basins.slice(0, 3).reduce((a, b) => a * b, 1);
 
-console.log(score, basins.slice(0, 10));
+console.log(score);
 
 function findBasins(lines: Weights) {
-  const allBasin = {};
+  const allBasin: Record<string, boolean> = {};
   const lowestPoints = findLowestPoints(lines);
 
   // @ts-ignore
   const ret = lowestPoints.map(([x, y]) => {
     const basin = {};
 
-    calculateBasin(allBasin, lines, x, y);
-    calculateBasin(basin, lines, x, y);
+    calculateBasin(allBasin, basin, lines, x, y);
 
     return Object.keys(basin).length;
   });
@@ -50,6 +49,7 @@ function printBasin(lines: Weights, basin: Record<string, boolean>) {
 }
 
 function calculateBasin(
+  allBasin: Record<string, boolean>,
   basin: Record<string, boolean>,
   lines: Weights,
   x: number,
@@ -62,23 +62,24 @@ function calculateBasin(
   const prevY = (y > 0 ? lines[y - 1][x] : undefined) as number;
   const nextY = (y + 1 < lines.length ? lines[y + 1][x] : undefined) as number;
 
-  if (value === 9) {
+  if (value === 9 || allBasin[`${x}-${y}`]) {
     return;
   }
 
+  allBasin[`${x}-${y}`] = true;
   basin[`${x}-${y}`] = true;
 
-  if (isDefined(prevX) && prevX - value === 1) {
-    calculateBasin(basin, lines, x - 1, y);
+  if (isDefined(prevX)) {
+    calculateBasin(allBasin, basin, lines, x - 1, y);
   }
-  if (isDefined(nextX) && nextX - value === 1) {
-    calculateBasin(basin, lines, x + 1, y);
+  if (isDefined(nextX)) {
+    calculateBasin(allBasin, basin, lines, x + 1, y);
   }
-  if (isDefined(prevY) && prevY - value === 1) {
-    calculateBasin(basin, lines, x, y - 1);
+  if (isDefined(prevY)) {
+    calculateBasin(allBasin, basin, lines, x, y - 1);
   }
-  if (isDefined(nextY) && nextY - value === 1) {
-    calculateBasin(basin, lines, x, y + 1);
+  if (isDefined(nextY)) {
+    calculateBasin(allBasin, basin, lines, x, y + 1);
   }
 }
 

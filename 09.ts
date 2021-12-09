@@ -21,31 +21,15 @@ function findBasins(lines: Weights) {
   const allBasin = {};
 
   const ret = lines.flatMap((line, y) =>
-    line.map((value, x) => {
-      // TODO: Clean up undefined handling + repetition
-      const prevX = line[x - 1];
-      const nextX = line[x + 1];
-      const prevY = (y > 0 ? lines[y - 1][x] : undefined) as number;
-      const nextY = (y + 1 < lines.length
-        ? lines[y + 1][x]
-        : undefined) as number;
-      const isLowestPoint = (isDefined(prevX) ? prevX > value : true) &&
-        (isDefined(nextX) ? nextX > value : true) &&
-        (isDefined(prevY) ? prevY > value : true) &&
-        (isDefined(nextY) ? nextY > value : true);
+    line.map((_value, x) => {
+      const basin = {};
 
-      if (isLowestPoint) {
-        const basin = {};
+      calculateBasin(allBasin, lines, x, y);
+      calculateBasin(basin, lines, x, y);
 
-        calculateBasin(allBasin, lines, x, y);
-        calculateBasin(basin, lines, x, y);
-
-        return Object.keys(basin).length;
-      }
-
-      return false;
+      return Object.keys(basin).length;
     })
-  ).filter((v) => v !== false);
+  );
 
   printBasin(lines, allBasin);
 

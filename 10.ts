@@ -1,6 +1,6 @@
 import { assert } from "https://deno.land/std@0.117.0/testing/asserts.ts";
 
-const lines: string[] = (await Deno.readTextFile("./10-input.txt"))
+const lines: string[] = (await Deno.readTextFile("./10-test-input.txt"))
   .split("\n");
 
 // Valid cases
@@ -21,9 +21,12 @@ assert(!isValid("(((()))}").ok);
 assert(!isValid("<([]){()}[{}])").ok);
 
 const validLines = lines.filter((l) => isValid(l).ok);
-const invalidLines = lines.map((l) => isValid(l)).filter((o) => !o.ok).map(
-  (o) => o.failedAt,
-);
+const invalidLines = lines.map((l) => isValid(l)).filter((o) => !o.ok);
+const invalidLinesFailedAt = lines.map((l) => isValid(l)).filter((o) => !o.ok)
+  .map(
+    (o) => o.failedAt,
+  );
+const incompleteLines = lines.filter((l) => isValid(l).incomplete);
 
 console.log(
   "all lines",
@@ -33,7 +36,9 @@ console.log(
   "invalid lines",
   invalidLines,
   "fail score",
-  scoreFails(invalidLines),
+  scoreFails(invalidLinesFailedAt),
+  "incomplete lines",
+  incompleteLines,
 );
 
 function isValid(line: string) {
@@ -71,6 +76,10 @@ function isValid(line: string) {
         failedAt: c,
       };
     }
+  }
+
+  if (expectedCharacters.length > 0) {
+    return { ok: true, failedAt: "", incomplete: true };
   }
 
   return { ok: true, failedAt: "" };

@@ -41,6 +41,22 @@ console.log(
   incompleteLines,
 );
 
+assert(!isValid(fixIncompleteLine("[({(<(())[]>[[{[]{<()<>>")).incomplete);
+assert(!isValid(fixIncompleteLine("[(()[<>])]({[<{<<[]>>(")).incomplete);
+assert(!isValid(fixIncompleteLine("(((({<>}<{<{<>}{[]{[]{}")).incomplete);
+assert(!isValid(fixIncompleteLine("{<[[]]>}<{[{[{[]{()[[[]")).incomplete);
+assert(!isValid(fixIncompleteLine("<{([{{}}[<[[[<>{}]]]>[]]")).incomplete);
+
+function fixIncompleteLine(input: string) {
+  const stats = isValid(input);
+
+  if (stats.incomplete) {
+    return input + stats.expectedCharacters.reverse().join("");
+  }
+
+  return input;
+}
+
 function isValid(line: string) {
   const startingPairs: string[] = [];
   const expectedCharacters: string[] = [];
@@ -79,7 +95,7 @@ function isValid(line: string) {
   }
 
   if (expectedCharacters.length > 0) {
-    return { ok: true, failedAt: "", incomplete: true };
+    return { ok: true, failedAt: "", incomplete: true, expectedCharacters };
   }
 
   return { ok: true, failedAt: "" };

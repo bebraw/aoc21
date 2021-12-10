@@ -41,20 +41,39 @@ console.log(
   incompleteLines,
 );
 
-assert(!isValid(fixIncompleteLine("[({(<(())[]>[[{[]{<()<>>")).incomplete);
-assert(!isValid(fixIncompleteLine("[(()[<>])]({[<{<<[]>>(")).incomplete);
-assert(!isValid(fixIncompleteLine("(((({<>}<{<{<>}{[]{[]{}")).incomplete);
-assert(!isValid(fixIncompleteLine("{<[[]]>}<{[{[{[]{()[[[]")).incomplete);
-assert(!isValid(fixIncompleteLine("<{([{{}}[<[[[<>{}]]]>[]]")).incomplete);
+assert(
+  !isValid(fixIncompleteLine("[({(<(())[]>[[{[]{<()<>>").value).incomplete,
+);
+assert(!isValid(fixIncompleteLine("[(()[<>])]({[<{<<[]>>(").value).incomplete);
+assert(!isValid(fixIncompleteLine("(((({<>}<{<{<>}{[]{[]{}").value).incomplete);
+assert(!isValid(fixIncompleteLine("{<[[]]>}<{[{[{[]{()[[[]").value).incomplete);
+assert(
+  !isValid(fixIncompleteLine("<{([{{}}[<[[[<>{}]]]>[]]").value).incomplete,
+);
 
 function fixIncompleteLine(input: string) {
   const stats = isValid(input);
 
   if (stats.incomplete) {
-    return input + stats.expectedCharacters.reverse().join("");
+    // reverse() is dangerous as it mutates
+    const fix = stats.expectedCharacters.reverse().join("");
+
+    return { value: input + fix, score: scoreFix(fix) };
   }
 
-  return input;
+  return { value: input };
+}
+
+assert(scoreFix("}}]])})]") === 288957);
+assert(scoreFix(")}>]})") === 5566);
+assert(scoreFix("}}>}>))))") === 1480781);
+assert(scoreFix("]]}}]}]}>") === 995444);
+assert(scoreFix("])}>") === 294);
+
+function scoreFix(s: string) {
+  const scores: Record<string, number> = { ")": 1, "]": 2, "}": 3, ">": 4 };
+
+  return s.split("").reduce((a, b) => 5 * a + scores[b], 0);
 }
 
 function isValid(line: string) {

@@ -1,6 +1,6 @@
 import { assert } from "https://deno.land/std@0.117.0/testing/asserts.ts";
 
-const lines: string[] = (await Deno.readTextFile("./10-test-input.txt"))
+const lines: string[] = (await Deno.readTextFile("./10-input.txt"))
   .split("\n");
 
 // Valid cases
@@ -27,18 +27,25 @@ const invalidLinesFailedAt = lines.map((l) => isValid(l)).filter((o) => !o.ok)
     (o) => o.failedAt,
   );
 const incompleteLines = lines.filter((l) => isValid(l).incomplete);
+const fixedLines = incompleteLines.map(fixIncompleteLine);
+const middleFixScore = fixedLines.map(({ score }) => score)
+  .sort((a, b) => a - b)[Math.floor(fixedLines.length / 2)];
 
 console.log(
   "all lines",
   lines.length,
   "valid lines",
   validLines.length,
-  "invalid lines",
-  invalidLines,
+  // "invalid lines",
+  // invalidLines,
   "fail score",
   scoreFails(invalidLinesFailedAt),
-  "incomplete lines",
-  incompleteLines,
+  // "incomplete lines",
+  // incompleteLines,
+  // "fixed lines",
+  // fixedLines,
+  "middle fix score",
+  middleFixScore,
 );
 
 assert(
@@ -61,7 +68,7 @@ function fixIncompleteLine(input: string) {
     return { value: input + fix, score: scoreFix(fix) };
   }
 
-  return { value: input };
+  return { value: input, score: 0 };
 }
 
 assert(scoreFix("}}]])})]") === 288957);

@@ -1,52 +1,119 @@
 import { assertArrayIncludes } from "https://deno.land/std@0.117.0/testing/asserts.ts";
 
-type Lights = number[][];
+type Lights = Light[][];
+type Light = { count: number; flashedAlready?: boolean };
 
 const lights: Lights = (await Deno.readTextFile("./11-test-input.txt"))
   .split(
     "\n",
-  ).map((s) => s.split("").map((n) => parseInt(n, 10)));
+  ).map((s) => s.split("").map((n) => ({ count: parseInt(n, 10) })));
 const miniTestSteps = getMiniTestSteps();
 const testSteps = getTestSteps();
 
-assertArrayIncludes(step(miniTestSteps[0]), miniTestSteps[1]);
-assertArrayIncludes(step(miniTestSteps[1]), miniTestSteps[2]);
-// assertArrayIncludes(step(testSteps[1]), testSteps[2]);
-// assertArrayIncludes(step(testSteps[2]), testSteps[3]);
+// TODO: Add print
+assertArrayIncludes(clean(step(miniTestSteps[0])), clean(miniTestSteps[1]));
+// assertArrayIncludes(clean(step(miniTestSteps[1])), clean(miniTestSteps[2]));
+// assertArrayIncludes(clean(step(testSteps[1])), clean(testSteps[2]));
+// assertArrayIncludes(clean(step(testSteps[2])), clean(testSteps[3]));
 
 // TODO
 console.log(lights.length);
 
-function step(lights: Lights) {
-  // TODO: Flash
-  return increment(lights);
-}
-
-function increment(lights: Lights) {
+function clean(lights: Lights) {
   return lights.map((line) =>
     line.map((n) => {
-      let newN = n + 1;
-
-      if (newN > 9) {
-        newN = 0;
-      }
-
-      return newN;
+      return n.count;
     })
   );
 }
 
-// TODO: Model flash behavior here
-function flash(lights: Lights) {
-  return lights.map((line, x) =>
-    line.map((n, y) => {
-      if (n === 0) {
-        // TODO: Update neighbours
-      }
+function step(lights: Lights) {
+  return flashLights(incrementLights(reset(lights)));
+}
+
+function reset(lights: Lights) {
+  return lights.map((line) =>
+    line.map((n) => {
+      n.flashedAlready = false;
 
       return n;
     })
   );
+}
+
+function incrementLights(lights: Lights) {
+  return lights.map((line) => line.map(incrementLight));
+}
+
+// Mutates
+function incrementLight(n: Light) {
+  n.count++;
+
+  if (n.count > 9) {
+    n.count = 0;
+  }
+
+  return n;
+}
+
+function flashLights(lights: Lights) {
+  return lights.map((line, y) =>
+    line.map((n, x) => flashLight(n, x, y, lights))
+  );
+}
+
+// Mutates
+function flashLight(n: Light, x: number, y: number, lights: Lights) {
+  if (n.count === 0 && !n.flashedAlready) {
+    const neighbours = getNeighbours(lights, x, y);
+
+    neighbours.forEach((o) => incrementLight(o.light));
+    neighbours.forEach((o) => flashLight(o.light, o.x, o.y, lights));
+
+    n.flashedAlready = true;
+  }
+
+  return n;
+}
+
+function getNeighbours(
+  lights: Lights,
+  x: number,
+  y: number,
+): { light: Light; x: number; y: number }[] {
+  const topLeft = getLight(lights, x - 1, y - 1);
+  const topMiddle = getLight(lights, x - 1, y);
+  const topRight = getLight(lights, x - 1, y + 1);
+  const midLeft = getLight(lights, x, y - 1);
+  const midRight = getLight(lights, x, y + 1);
+  const bottomLeft = getLight(lights, x + 1, y - 1);
+  const bottomMiddle = getLight(lights, x + 1, y);
+  const bottomRight = getLight(lights, x + 1, y + 1);
+
+  const ret = [
+    topLeft,
+    topMiddle,
+    topRight,
+    midLeft,
+    midRight,
+    bottomLeft,
+    bottomMiddle,
+    bottomRight,
+  ].filter(Boolean);
+
+  // @ts-ignore For some reason, TS doesn't infer filter result
+  // correctly
+  return ret;
+}
+
+function getLight(lights: Lights, x: number, y: number) {
+  const light = lights[y][x];
+
+  return isDefined(light) && { light, x, y };
+}
+
+function isDefined(s: unknown) {
+  return typeof s !== "undefined";
 }
 
 function getMiniTestSteps() {
@@ -68,7 +135,7 @@ function getMiniTestSteps() {
   45654`,
   ].map((s) =>
     s.split("\n").map((line) =>
-      line.trim().split("").map((s) => parseInt(s, 10))
+      line.trim().split("").map((s) => ({ count: parseInt(s, 10) }))
     )
   );
 }
@@ -117,7 +184,7 @@ function getTestSteps() {
   0021119000`,
   ].map((s) =>
     s.split("\n").map((line) =>
-      line.trim().split("").map((s) => parseInt(s, 10))
+      line.trim().split("").map((s) => ({ count: parseInt(s, 10) }))
     )
   );
 }

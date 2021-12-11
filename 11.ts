@@ -3,7 +3,7 @@ import { assertArrayIncludes } from "https://deno.land/std@0.117.0/testing/asser
 type Lights = Light[][];
 type Light = { count: number; flashedAlready?: boolean };
 
-const lights: Lights = (await Deno.readTextFile("./11-test-input.txt"))
+const lights: Lights = (await Deno.readTextFile("./11-input.txt"))
   .split(
     "\n",
   ).map((s) => s.split("").map((n) => ({ count: parseInt(n, 10) })));
@@ -29,7 +29,7 @@ assertArrayIncludes(pickCounts(step(testSteps[1])), pickCounts(testSteps[2]));
 assertArrayIncludes(pickCounts(step(testSteps[2])), pickCounts(testSteps[3]));
 
 // TODO
-console.log(lights.length);
+console.log(stepTill(lights, 100));
 
 function printLights(lights: Lights) {
   console.log(pickCounts(lights).map((line) => line.join("")).join("\n"));
@@ -44,8 +44,35 @@ function pickCounts(lights: Lights) {
   );
 }
 
+function stepTill(lights: Lights, limit: number) {
+  let count = 0;
+  let nextStep = lights;
+
+  Array.from(new Array(limit).keys()).forEach(() => {
+    nextStep = step(nextStep);
+
+    count += getAmountOfFlashes(nextStep);
+  });
+
+  return count;
+}
+
 function step(lights: Lights) {
   return flashLights(incrementLights(reset(lights)));
+}
+
+function getAmountOfFlashes(lights: Lights) {
+  let count = 0;
+
+  lights.forEach((line) =>
+    line.forEach((n) => {
+      if (n.flashedAlready) {
+        count++;
+      }
+    })
+  );
+
+  return count;
 }
 
 function reset(lights: Lights) {

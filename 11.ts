@@ -25,14 +25,8 @@ assertArrayIncludes(
   pickCounts(step(miniTestSteps[1])),
   pickCounts(miniTestSteps[2]),
 );
-
-printLights(testSteps[2]);
-printLights(step(testSteps[1]));
-
-/*
 assertArrayIncludes(pickCounts(step(testSteps[1])), pickCounts(testSteps[2]));
 assertArrayIncludes(pickCounts(step(testSteps[2])), pickCounts(testSteps[3]));
-*/
 
 // TODO
 console.log(lights.length);
@@ -96,6 +90,7 @@ function flashLight(n: Light, x: number, y: number, lights: Lights) {
 
     neighbours.forEach((o) => flashLight(o.light, o.x, o.y, lights));
     neighbours.forEach((o) => incrementLight(o.light));
+    neighbours.forEach((o) => flashLight(o.light, o.x, o.y, lights));
   }
 
   return n;

@@ -6,9 +6,11 @@ const lights: Lights = (await Deno.readTextFile("./11-test-input.txt"))
   .split(
     "\n",
   ).map((s) => s.split("").map((n) => parseInt(n, 10)));
+const miniTestSteps = getMiniTestSteps();
 const testSteps = getTestSteps();
 
-assertArrayIncludes(step(testSteps[0]), testSteps[1]);
+assertArrayIncludes(step(miniTestSteps[0]), miniTestSteps[1]);
+assertArrayIncludes(step(miniTestSteps[1]), miniTestSteps[2]);
 // assertArrayIncludes(step(testSteps[1]), testSteps[2]);
 // assertArrayIncludes(step(testSteps[2]), testSteps[3]);
 
@@ -44,6 +46,30 @@ function flash(lights: Lights) {
 
       return n;
     })
+  );
+}
+
+function getMiniTestSteps() {
+  return [
+    `11111
+  19991
+  19191
+  19991
+  11111`,
+    `34543
+  40004
+  50005
+  40004
+  34543`,
+    `45654
+  51115
+  61116
+  51115
+  45654`,
+  ].map((s) =>
+    s.split("\n").map((line) =>
+      line.trim().split("").map((s) => parseInt(s, 10))
+    )
   );
 }
 

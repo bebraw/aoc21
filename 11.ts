@@ -10,16 +10,39 @@ const lights: Lights = (await Deno.readTextFile("./11-test-input.txt"))
 const miniTestSteps = getMiniTestSteps();
 const testSteps = getTestSteps();
 
-// TODO: Add print
-assertArrayIncludes(clean(step(miniTestSteps[0])), clean(miniTestSteps[1]));
-// assertArrayIncludes(clean(step(miniTestSteps[1])), clean(miniTestSteps[2]));
-// assertArrayIncludes(clean(step(testSteps[1])), clean(testSteps[2]));
-// assertArrayIncludes(clean(step(testSteps[2])), clean(testSteps[3]));
+/*
+printLights(miniTestSteps[0]);
+printLights(step(miniTestSteps[0]));
+printLights(miniTestSteps[1]);
+printLights(step(miniTestSteps[1]));
+*/
+
+assertArrayIncludes(
+  pickCounts(step(miniTestSteps[0])),
+  pickCounts(miniTestSteps[1]),
+);
+assertArrayIncludes(
+  pickCounts(step(miniTestSteps[1])),
+  pickCounts(miniTestSteps[2]),
+);
+
+printLights(testSteps[2]);
+printLights(step(testSteps[1]));
+
+/*
+assertArrayIncludes(pickCounts(step(testSteps[1])), pickCounts(testSteps[2]));
+assertArrayIncludes(pickCounts(step(testSteps[2])), pickCounts(testSteps[3]));
+*/
 
 // TODO
 console.log(lights.length);
 
-function clean(lights: Lights) {
+function printLights(lights: Lights) {
+  console.log(pickCounts(lights).map((line) => line.join("")).join("\n"));
+  console.log();
+}
+
+function pickCounts(lights: Lights) {
   return lights.map((line) =>
     line.map((n) => {
       return n.count;
@@ -47,10 +70,12 @@ function incrementLights(lights: Lights) {
 
 // Mutates
 function incrementLight(n: Light) {
-  n.count++;
+  if (!n.flashedAlready) {
+    n.count++;
 
-  if (n.count > 9) {
-    n.count = 0;
+    if (n.count > 9) {
+      n.count = 0;
+    }
   }
 
   return n;
@@ -67,10 +92,10 @@ function flashLight(n: Light, x: number, y: number, lights: Lights) {
   if (n.count === 0 && !n.flashedAlready) {
     const neighbours = getNeighbours(lights, x, y);
 
-    neighbours.forEach((o) => incrementLight(o.light));
-    neighbours.forEach((o) => flashLight(o.light, o.x, o.y, lights));
-
     n.flashedAlready = true;
+
+    neighbours.forEach((o) => flashLight(o.light, o.x, o.y, lights));
+    neighbours.forEach((o) => incrementLight(o.light));
   }
 
   return n;
@@ -99,17 +124,20 @@ function getNeighbours(
     bottomLeft,
     bottomMiddle,
     bottomRight,
-  ].filter(Boolean);
+  ].filter(isDefined);
 
-  // @ts-ignore For some reason, TS doesn't infer filter result
-  // correctly
+  // @ts-ignore There's something wrong with the return type
   return ret;
 }
 
-function getLight(lights: Lights, x: number, y: number) {
-  const light = lights[y][x];
+function getLight(
+  lights: Lights,
+  x: number,
+  y: number,
+): { light: Light; x: number; y: number } | undefined {
+  const light = isDefined(lights[y]) ? lights[y][x] : undefined;
 
-  return isDefined(light) && { light, x, y };
+  return isDefined(light) ? { light: light as Light, x, y } : undefined;
 }
 
 function isDefined(s: unknown) {

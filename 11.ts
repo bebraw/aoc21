@@ -28,8 +28,8 @@ assertArrayIncludes(
 assertArrayIncludes(pickCounts(step(testSteps[1])), pickCounts(testSteps[2]));
 assertArrayIncludes(pickCounts(step(testSteps[2])), pickCounts(testSteps[3]));
 
-// TODO
-console.log(stepTill(lights, 100));
+// console.log(stepTill(lights, 100)); mutates, better reset after this
+console.log(findFirstFullFlash(lights, 10000));
 
 function printLights(lights: Lights) {
   console.log(pickCounts(lights).map((line) => line.join("")).join("\n"));
@@ -57,6 +57,22 @@ function stepTill(lights: Lights, limit: number) {
   return count;
 }
 
+function findFirstFullFlash(lights: Lights, limit: number) {
+  let nextStep = lights;
+
+  const numbers = Array.from(new Array(limit).keys());
+
+  for (let index = 0; index < numbers.length; index++) {
+    nextStep = step(nextStep);
+
+    if (allCountsAreZero(nextStep)) {
+      return index + 1;
+    }
+  }
+
+  return "no result";
+}
+
 function step(lights: Lights) {
   return flashLights(incrementLights(reset(lights)));
 }
@@ -73,6 +89,10 @@ function getAmountOfFlashes(lights: Lights) {
   );
 
   return count;
+}
+
+function allCountsAreZero(lights: Lights) {
+  return lights.every((line) => line.every((n) => n.count === 0));
 }
 
 function reset(lights: Lights) {

@@ -10,7 +10,7 @@ const nodes: Node[] = (await Deno.readTextFile("./12-test-input.txt"))
 const graph = nodesToGraph(nodes);
 
 console.log("graph", graph);
-console.log("paths", calculatePaths(graph));
+console.log("paths", calculateAllPaths(graph));
 
 // assert(calculateAmountOfPaths(graph) === 10);
 
@@ -57,24 +57,24 @@ function nodesToGraph(nodes: Node[]) {
   return foundNodes;
 }
 
-function calculatePaths(
+function calculateAllPaths(
   graph: Record<string, GraphNode[]>,
   id?: string,
   visitedNodes?: string[],
-) {
+): string[][] {
   if (!graph.start) {
     throw new Error("Missing start nodes");
   }
 
   if (id === "end") {
-    return visitedNodes;
+    return visitedNodes ? [visitedNodes.concat("end")] : [];
   }
 
   if (!id) {
     id = "start";
   }
 
-  let ret: string[] = [id];
+  const ret = visitedNodes ? [visitedNodes] : [];
 
   graph[id]?.forEach((child) => {
     if (child.id == "end") {
@@ -83,22 +83,23 @@ function calculatePaths(
 
     const visitedNodeId = visitedNodes?.find((id) => child.id === id);
 
-    // TODO: How to handle branching here - duplicate path so far somehow?
     if (
       !visitedNodeId ||
       (visitedNodeId.toUpperCase() === visitedNodeId) && child.to !== "start"
     ) {
-      const paths = calculatePaths(
+      const paths = calculateAllPaths(
         graph,
         child.to,
-        ret.concat(child.to),
+        (visitedNodes || []).concat(child.id),
       );
 
       if (paths) {
-        ret = ret.concat(paths);
+        // @ts-ignore Figure this out
+        ret.push(paths);
       }
     }
   });
 
+  // @ts-ignore Figure this out
   return ret;
 }

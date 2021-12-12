@@ -61,13 +61,13 @@ function calculateAllPaths(
   graph: Record<string, GraphNode[]>,
   id?: string,
   visitedNodes?: string[],
-): string[][] {
+): string[] {
   if (!graph.start) {
     throw new Error("Missing start nodes");
   }
 
   if (id === "end") {
-    return visitedNodes ? [visitedNodes.concat("end")] : [];
+    return visitedNodes ? visitedNodes.concat("end") : [];
   }
 
   if (!id) {

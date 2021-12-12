@@ -30,12 +30,24 @@ function nodesToGraph(nodes: Node[]) {
   const foundNodes: Record<string, GraphNode[]> = {};
 
   nodes.forEach(({ from, to }) => {
-    const o: GraphNode = { id: from, to, isBig: from === from.toUpperCase() };
+    const fromObject: GraphNode = {
+      id: from,
+      to,
+      isBig: from === from.toUpperCase(),
+    };
 
     if (foundNodes[from]) {
-      foundNodes[from].push(o);
+      foundNodes[from].push(fromObject);
+
+      const toObject = { id: to, to: from, isBig: to === to.toUpperCase() };
+
+      if (foundNodes[to]) {
+        foundNodes[to].push(toObject);
+      } else {
+        foundNodes[to] = [toObject];
+      }
     } else {
-      foundNodes[from] = [o];
+      foundNodes[from] = [fromObject];
     }
   });
 
@@ -50,7 +62,7 @@ function calculateAmountOfPaths(graph: Record<string, GraphNode[]>) {
       const target = graph[to];
 
       if (target) {
-        console.log("target", target);
+        // console.log("target", target);
 
         // TODO: Recursion over what remains?
         // amount += calculateAmountOfPaths()

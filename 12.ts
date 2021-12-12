@@ -1,7 +1,7 @@
 import { assert } from "https://deno.land/std@0.117.0/testing/asserts.ts";
 
 type Node = { from: "start" | string; to: "end" | string };
-type GraphNode = { id: string; to: string; isBig: boolean };
+type GraphNode = { id: string; to: string };
 
 const nodes: Node[] = (await Deno.readTextFile("./12-test-input.txt"))
   .split(
@@ -9,9 +9,10 @@ const nodes: Node[] = (await Deno.readTextFile("./12-test-input.txt"))
   ).map((s) => ({ from: s.split("-")[0], to: s.split("-")[1] }));
 const graph = nodesToGraph(nodes);
 
-console.log(graph, calculateAmountOfPaths(graph));
+console.log("graph", graph);
+console.log("paths", calculatePaths(graph));
 
-assert(calculateAmountOfPaths(graph) === 10);
+// assert(calculateAmountOfPaths(graph) === 10);
 
 /*
 start,A,b,A,c,A,end
@@ -33,13 +34,15 @@ function nodesToGraph(nodes: Node[]) {
     const fromObject: GraphNode = {
       id: from,
       to,
-      isBig: from === from.toUpperCase(),
     };
 
     if (foundNodes[from]) {
       foundNodes[from].push(fromObject);
 
-      const toObject = { id: to, to: from, isBig: to === to.toUpperCase() };
+      const toObject: GraphNode = {
+        id: to,
+        to: from,
+      };
 
       if (foundNodes[to]) {
         foundNodes[to].push(toObject);
@@ -54,23 +57,48 @@ function nodesToGraph(nodes: Node[]) {
   return foundNodes;
 }
 
-function calculateAmountOfPaths(graph: Record<string, GraphNode[]>) {
-  let amount = 0;
+function calculatePaths(
+  graph: Record<string, GraphNode[]>,
+  id?: string,
+  visitedNodes?: string[],
+) {
+  if (!graph.start) {
+    throw new Error("Missing start nodes");
+  }
 
-  Object.entries(graph).forEach(([id, nodes]) => {
-    nodes.forEach(({ to }) => {
-      const target = graph[to];
+  if (id === "end") {
+    return visitedNodes;
+  }
 
-      if (target) {
-        // console.log("target", target);
+  if (!id) {
+    id = "start";
+  }
 
-        // TODO: Recursion over what remains?
-        // amount += calculateAmountOfPaths()
+  let ret: string[] = [id];
+
+  graph[id]?.forEach((child) => {
+    if (child.id == "end") {
+      return;
+    }
+
+    const visitedNodeId = visitedNodes?.find((id) => child.id === id);
+
+    // TODO: How to handle branching here - duplicate path so far somehow?
+    if (
+      !visitedNodeId ||
+      (visitedNodeId.toUpperCase() === visitedNodeId) && child.to !== "start"
+    ) {
+      const paths = calculatePaths(
+        graph,
+        child.to,
+        ret.concat(child.to),
+      );
+
+      if (paths) {
+        ret = ret.concat(paths);
       }
-
-      // TODO: Handle to + isBig (allows return)
-    });
+    }
   });
 
-  return amount;
+  return ret;
 }
